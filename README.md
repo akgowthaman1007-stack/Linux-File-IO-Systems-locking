@@ -20,8 +20,39 @@ Execute the C Program for the desired output.
 # PROGRAM:
 
 ## 1.To Write a C program that illustrates files copying 
+```
+#include <stdio.h>
+#include <stdlib.h>
 
+int main() {
+    FILE *source, *dest;
+    int ch;
 
+    source = fopen("source.txt", "r");
+    if (source == NULL) {
+        printf("Source file not found!\n");
+        return 1;
+    }
+
+    dest = fopen("destination.txt", "w");
+    if (dest == NULL) {
+        printf("Cannot create destination file!\n");
+        fclose(source);
+        return 1;
+    }
+
+    while ((ch = fgetc(source)) != EOF) {
+        fputc(ch, dest);
+    }
+
+    printf("File copied successfully!\n");
+
+    fclose(source);
+    fclose(dest);
+
+    return 0;
+}
+```
 
 
 
@@ -29,12 +60,57 @@ Execute the C Program for the desired output.
 
 ## 2.To Write a C program that illustrates files locking
 
+```
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <string.h>
 
+int main() {
+    int fd;
+    struct flock lock;
 
+    fd = open("locked.txt", O_RDWR | O_CREAT, 0644);
+    if (fd < 0) {
+        printf("Error opening file!\n");
+        return 1;
+    }
+
+    lock.l_type = F_WRLCK;
+    lock.l_whence = SEEK_SET;
+    lock.l_start = 0;
+    lock.l_len = 0;
+    lock.l_pid = getpid();
+
+    printf("Locking file...\n");
+    if (fcntl(fd, F_SETLK, &lock) == -1) {
+        printf("File already locked by another process!\n");
+        close(fd);
+        return 1;
+    }
+
+    printf("File locked successfully!\n");
+
+    write(fd, "This is locked content\n", 24);
+    printf("Data written to file\n");
+
+    printf("Press Enter to unlock...");
+    getchar();
+
+    lock.l_type = F_UNLCK;
+    fcntl(fd, F_SETLK, &lock);
+
+    printf("File unlocked!\n");
+
+    close(fd);
+    return 0;
+}
+```
 
 ## OUTPUT
-
-
+![Alt text](exp7.png)
+![Alt text](exp71.png)
 
 
 
